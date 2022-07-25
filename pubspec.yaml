@@ -43,6 +43,8 @@ dependencies:
     path: packages/cache_sharedpref
   flutter_local_notifications: ^9.7.0
   flutter_spinkit: ^5.1.0
+  url_launcher: ^6.1.5
+
 
 dev_dependencies:
   flutter_test:

@@ -18,8 +18,8 @@ class BottomNavigationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
       bool isSelected = context.select(
-        (TasksCubit cubit) => cubit.state is TasksPageChange
-            ? (cubit.state as TasksPageChange).currentPage == index
+        (TasksCubit cubit) => cubit.state is TasksActiveBotNavItemChange
+            ? (cubit.state as TasksActiveBotNavItemChange).currentItem == index
             : false,
       );
       Color? color = isSelected

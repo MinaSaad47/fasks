@@ -20,8 +20,20 @@ class TasksView extends StatelessWidget {
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOutCubicEmphasized,
             );
+          } else if (state is TasksAddBottomSheetOpen) {
+            showBottomSheet(
+              context: context,
+              builder: (context) => const AddBottomSheet() /**/,
+            ).closed.then((value) {
+              if (context.read<TasksCubit>().isBotSheetActive) {
+                context.read<TasksCubit>().swipeDownAddBottomSheet();
+              }
+            });
+          } else if (state is TasksAddBottomSheetClose) {
+            Navigator.of(context).pop();
           }
         },
+        buildWhen: (current, next) => next is TasksPageChange,
         builder: (context, state) {
           return PageView.builder(
             controller: pageController,
@@ -37,13 +49,35 @@ class TasksView extends StatelessWidget {
               ),
             ),
             itemCount: 5,
-            onPageChanged: (index) {},
+            onPageChanged: (index) {
+              context.read<TasksCubit>().changeActiveBotNavItem(index);
+            },
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
+      floatingActionButton: Builder(
+        builder: (context) {
+          return BlocBuilder<TasksCubit, TasksState>(
+            builder: (context, state) {
+              bool isBottomSheetActive =
+                  context.read<TasksCubit>().isBotSheetActive;
+              return FloatingActionButton(
+                onPressed: isBottomSheetActive
+                    ? () {
+                        context.read<TasksCubit>().submitAddBottomSheet();
+                      }
+                    : () {
+                        context.read<TasksCubit>().openAddBottomSheet();
+                      },
+                child: Icon(
+                  isBottomSheetActive
+                      ? Icons.check_outlined
+                      : Icons.add_outlined,
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
