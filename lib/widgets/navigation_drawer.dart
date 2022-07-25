@@ -1,8 +1,10 @@
 import 'package:fasks/pomodoro/pomodoro.dart';
 import 'package:fasks/settings/settings.dart';
 import 'package:fasks/tasks/tasks.dart';
+import 'package:fasks/utils/consts.dart';
 import 'package:fasks/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NavigationDrawer extends StatelessWidget {
   const NavigationDrawer({Key? key}) : super(key: key);
@@ -31,6 +33,35 @@ class NavigationDrawer extends StatelessWidget {
                 text: 'Settings',
                 icon: Icons.settings_outlined,
                 route: SettingsPage.route(),
+              ),
+              ListTile(
+                title: const Text('About'),
+                leading: const Icon(Icons.info_outline),
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: Consts.appName,
+                    applicationIcon: const FlutterLogo(),
+                    applicationVersion: Consts.appVersion,
+                    children: [
+                      const ListTile(
+                        title: Text(Consts.authorName),
+                        leading: Icon(Icons.person),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        onTap: () async {
+                          var uri = Uri.parse(Consts.srcUrl);
+                          if (await canLaunchUrl(uri)) {
+                            launchUrl(uri);
+                          }
+                        },
+                        title: const Text('Source Code'),
+                        leading: const Icon(Icons.code),
+                      )
+                    ],
+                  );
+                },
               ),
             ],
           ),
