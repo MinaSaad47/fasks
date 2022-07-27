@@ -1,11 +1,18 @@
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:tasks_api/tasks_api.dart';
 import 'package:uuid/uuid.dart';
 
-class Task {
+part 'task.g.dart';
+
+@JsonSerializable()
+class Task extends Equatable {
   final String? id;
   final String title;
   final String description;
+  @JsonKey(name: 'created_date')
   final DateTime createdDate;
+  @JsonKey(name: 'finish_date')
   final DateTime finishDate;
   final List<Step> steps;
 
@@ -36,4 +43,18 @@ class Task {
         finishDate: finishDate ?? this.finishDate,
         steps: steps ?? this.steps,
       );
+
+  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+  Map<String, dynamic> toMap() => _$TaskToJson(this);
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [
+        id,
+        title,
+        description,
+        createdDate,
+        finishDate,
+        steps,
+      ];
 }
