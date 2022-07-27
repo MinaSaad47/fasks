@@ -6,7 +6,7 @@ part 'step.g.dart';
 
 @JsonSerializable()
 class Step extends Equatable {
-  final String? id;
+  final String id;
   final String description;
 
   Step({

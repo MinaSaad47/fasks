@@ -7,7 +7,7 @@ part 'task.g.dart';
 
 @JsonSerializable()
 class Task extends Equatable {
-  final String? id;
+  final String id;
   final String title;
   final String description;
   @JsonKey(name: 'created_date')
@@ -24,11 +24,10 @@ class Task extends Equatable {
       required this.finishDate,
       List<Step>? steps})
       : assert(id == null || id.isNotEmpty, 'id should not be empty'),
-        id = Uuid().v4(),
+        id = id ?? Uuid().v4(),
         steps = steps ?? [];
 
   Task copyWith({
-    String? id,
     String? title,
     String? description,
     DateTime? createdDate,
@@ -36,7 +35,7 @@ class Task extends Equatable {
     List<Step>? steps,
   }) =>
       Task(
-        id: id ?? this.id,
+        id: id,
         title: title ?? this.title,
         description: description ?? this.description,
         createdDate: createdDate ?? this.createdDate,

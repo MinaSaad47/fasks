@@ -19,14 +19,14 @@ class SqliteDbTasksApi extends TasksApi {
         await db.execute('''
       PRAGMA foreign_keys = ON;
       CREATE TABLE tasks (
-        id TEXT NOT NULL,
+        id TEXT PRIMARY KEY NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         created_date TEXT NOT NULL,
         finish_date TEXT NOT NULL
       );
       CREATE TABLE steps (
-        id TEXT NOT NULL,
+        id TEXT PRIMARY KEY NOT NULL,
         description TEXT NOT NULL,
         task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE
       );
@@ -62,7 +62,7 @@ class SqliteDbTasksApi extends TasksApi {
     }
     var db = await _db;
     int deleted = await db.transaction((txn) async {
-      int stepsDeleted = await db.delete(
+      int stepsDeleted = await txn.delete(
         'steps',
         where: 'task_id = ?',
         whereArgs: [id],
@@ -70,7 +70,7 @@ class SqliteDbTasksApi extends TasksApi {
       if (stepsDeleted < 0) {
         return -1;
       }
-      int tasksDeleted = await db.delete(
+      int tasksDeleted = await txn.delete(
         'tasks',
         where: 'id = ?',
         whereArgs: [id],
@@ -95,7 +95,7 @@ class SqliteDbTasksApi extends TasksApi {
     final tasks = [..._tasksStreamController.value];
     var db = await _db;
     try {
-      int inserted = await db.transaction((txn) async {
+      await db.transaction((txn) async {
         int taskInserted = await txn.insert(
           'tasks',
           task.toMap()..remove('steps'),
@@ -126,11 +126,12 @@ class SqliteDbTasksApi extends TasksApi {
 
         return taskInserted;
       });
-      if (inserted > 0) {
-        tasks.add(task);
-      } else if (inserted == 0) {
-        var index = tasks.indexWhere((element) => element.id == task.id);
+
+      var index = tasks.indexWhere((element) => element.id == task.id);
+      if (index >= 0) {
         tasks[index] = task;
+      } else {
+        tasks.add(task);
       }
       _tasksStreamController.add(tasks);
     } catch (e, st) {
