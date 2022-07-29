@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+part 'page_title.dart';
+
 class PageAppBar extends AppBar {
-  PageAppBar({Key? key, String? title})
+  PageAppBar({Key? key, Widget? title})
       : super(
           key: key,
           leadingWidth: 100,
-          title: title != null ? Text(title) : null,
+          title: title,
           leading: FittedBox(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

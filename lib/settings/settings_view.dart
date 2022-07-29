@@ -1,5 +1,5 @@
+import 'package:fasks/common/common.dart';
 import 'package:fasks/fasks/bloc/fasks_bloc.dart';
-import 'package:fasks/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,7 +9,13 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PageAppBar(title: 'Settings'),
+      appBar: PageAppBar(
+        title: const PageTitle(
+          title: 'Settings',
+          icon: Icons.settings_outlined,
+          subtitle: 'where you can change your preferences',
+        ),
+      ),
       drawer: const NavigationDrawer(),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0),

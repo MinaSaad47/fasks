@@ -41,9 +41,19 @@ dependencies:
     path: packages/cache
   cache_sharedpref:
     path: packages/cache_sharedpref
+  sqlite_db_tasks_api:
+    path: packages/sqlite_db_tasks_api
+  tasks_repository:
+    path: packages/tasks_repository
   flutter_local_notifications: ^9.7.0
   flutter_spinkit: ^5.1.0
   url_launcher: ^6.1.5
+  path_provider: ^2.0.11
+
+  datetime_form_picker:
+    git:
+      url: "https://github.com/MinaSaad47/pub-packages"
+      path: "packages/datetime_form_picker"
 
 
 dev_dependencies:

@@ -1,8 +1,7 @@
+import 'package:fasks/common/common.dart';
 import 'package:fasks/pomodoro/pomodoro.dart';
 import 'package:fasks/settings/settings.dart';
 import 'package:fasks/tasks/tasks.dart';
-import 'package:fasks/utils/consts.dart';
-import 'package:fasks/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 

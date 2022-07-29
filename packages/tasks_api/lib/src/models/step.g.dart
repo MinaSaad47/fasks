@@ -6,12 +6,14 @@ part of 'step.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Step _$StepFromJson(Map<String, dynamic> json) => Step(
+StepModel _$StepFromJson(Map<String, dynamic> json) => StepModel(
       id: json['id'] as String?,
       description: json['description'] as String,
+      isCompleted: Utils.boolFromInt(json['is_completed'] as int),
     );
 
-Map<String, dynamic> _$StepToJson(Step instance) => <String, dynamic>{
+Map<String, dynamic> _$StepToJson(StepModel instance) => <String, dynamic>{
       'id': instance.id,
       'description': instance.description,
+      'is_completed': Utils.boolToInt(instance.isCompleted),
     };

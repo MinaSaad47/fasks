@@ -1,26 +1,42 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:tasks_api/common/utils.dart';
 import 'package:uuid/uuid.dart';
 
 part 'step.g.dart';
 
 @JsonSerializable()
-class Step extends Equatable {
+class StepModel extends Equatable {
   final String id;
   final String description;
+  @JsonKey(
+    name: 'is_completed',
+    fromJson: Utils.boolFromInt,
+    toJson: Utils.boolToInt,
+  )
+  final bool isCompleted;
 
-  Step({
+  StepModel({
     String? id,
     required this.description,
+    required this.isCompleted,
   })  : assert(id == null || id.isNotEmpty),
         id = id ?? Uuid().v4();
 
-  Step copyWith({String? id, String? description}) =>
-      Step(id: id ?? this.id, description: description ?? this.description);
+  StepModel copyWith({
+    String? id,
+    String? description,
+    bool? isCompleted,
+  }) =>
+      StepModel(
+        id: id ?? this.id,
+        description: description ?? this.description,
+        isCompleted: isCompleted ?? this.isCompleted,
+      );
 
-  factory Step.fromJson(Map<String, dynamic> json) => _$StepFromJson(json);
+  factory StepModel.fromJson(Map<String, dynamic> json) => _$StepFromJson(json);
   Map<String, dynamic> toMap() => _$StepToJson(this);
 
   @override
-  List<Object?> get props => [id, description];
+  List<Object?> get props => [id, description, isCompleted];
 }

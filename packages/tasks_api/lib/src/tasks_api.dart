@@ -1,8 +1,8 @@
 import 'package:tasks_api/tasks_api.dart';
 
 abstract class TasksApi {
-  Future<void> saveTask(Task task);
-  Stream<List<Task>> getTasks();
+  Future<void> saveTask(TaskModel task);
+  Stream<List<TaskModel>> getTasks();
   Future<void> deleteTask(String id);
 }
 

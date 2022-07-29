@@ -1,37 +1,56 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
+import 'package:tasks_repository/tasks_repository.dart';
 
 part 'tasks_state.dart';
 
 class TasksCubit extends Cubit<TasksState> {
-  TasksCubit() : super(TasksInitial());
+  TasksCubit(this._tasksRepository) : super(const TasksState());
+
+  final TasksRepository _tasksRepository;
 
   bool isBotSheetActive = false;
 
-  void changePage(int index) {
-    emit(TasksPageChange(index));
+  Future getTasks() async {
+    emit(state.copyWith(status: TasksStatus.loading));
+    _tasksRepository.loadTasks();
+    try {
+      await for (var tasks in _tasksRepository.allTasks) {
+        emit(state.copyWith(status: TasksStatus.success, allTasks: tasks));
+      }
+    } catch (e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    }
+    try {
+      await for (var tasks in _tasksRepository.dayTasks) {
+        emit(state.copyWith(status: TasksStatus.success, dayTasks: tasks));
+      }
+    } catch (e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    }
+    try {
+      await for (var tasks in _tasksRepository.weekTasks) {
+        emit(state.copyWith(status: TasksStatus.success, weekTasks: tasks));
+      }
+    } catch (e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    }
+    try {
+      await for (var tasks in _tasksRepository.monthTasks) {
+        emit(state.copyWith(status: TasksStatus.success, monthTasks: tasks));
+      }
+    } catch (e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    }
   }
 
-  void changeActiveBotNavItem(int index) {
-    emit(TasksActiveBotNavItemChange(index));
-  }
-
-  void openAddBottomSheet() {
-    isBotSheetActive = true;
-    emit(TasksAddBottomSheetOpen());
-  }
-
-  void swipeDownAddBottomSheet() {
-    isBotSheetActive = false;
-    emit(TasksAddBottomSheetSwipeDown());
-  }
-
-  void closeAddBottomSheet() {
-    isBotSheetActive = false;
-    emit(TasksAddBottomSheetClose());
-  }
-
-  void submitAddBottomSheet() {
-    emit(TasksAddBottomSheetSubmit());
+  Future addTask(task) async {
+    await _tasksRepository.saveTask(task);
   }
 }

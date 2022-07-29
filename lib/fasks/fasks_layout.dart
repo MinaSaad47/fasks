@@ -1,4 +1,4 @@
-import 'package:fasks/widgets/widgets.dart';
+import 'package:fasks/common/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
 class FasksLayout extends StatelessWidget {

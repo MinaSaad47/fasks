@@ -1,57 +1,58 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:tasks_api/tasks_api.dart';
 
 class SqliteDbTasksApi extends TasksApi {
-  SqliteDbTasksApi({required String path}) {
+  @visibleForTesting
+  late final Database database;
+  final _tasksStreamController =
+      BehaviorSubject<List<TaskModel>>.seeded(const []);
+
+  SqliteDbTasksApi._internal(Database db) : database = db;
+
+  static Future instance(String dbPath) async {
     if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
-    _db = openDatabase(
-      path,
+    var db = await openDatabase(
+      dbPath,
       version: 1,
       onCreate: (db, version) async {
+        await db.execute('PRAGMA foreign_keys = ON');
         await db.execute('''
-      PRAGMA foreign_keys = ON;
-      CREATE TABLE tasks (
-        id TEXT PRIMARY KEY NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        created_date TEXT NOT NULL,
-        finish_date TEXT NOT NULL
-      );
-      CREATE TABLE steps (
-        id TEXT PRIMARY KEY NOT NULL,
-        description TEXT NOT NULL,
-        task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE
-      );
-      ''');
-      },
-      onOpen: (db) async {
-        var taskMapList = await db.query('tasks', orderBy: 'created_date ASC');
-        var tasksFuture = taskMapList.map((rawTask) async {
-          Map<String, dynamic> taskMap = Map.from(rawTask);
-          taskMap['steps'] = await db.query(
-            'steps',
-            columns: ['id', 'description'],
-            where: 'task_id = ?',
-            whereArgs: [taskMap['id']],
+          CREATE TABLE tasks (
+            id TEXT PRIMARY KEY NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            is_completed BOOL NOT NULL,
+            created_date TEXT NOT NULL,
+            finish_date TEXT NOT NULL
           );
-          return Task.fromJson(taskMap);
-        });
-        var tasks = await Future.wait(tasksFuture);
-        _tasksStreamController.sink.add(tasks);
+        ''');
+        await db.execute('''
+            CREATE TABLE steps (
+            id TEXT PRIMARY KEY NOT NULL,
+            description TEXT NOT NULL,
+            is_completed BOOL NOT NULL,
+            task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE
+            );
+          ''');
       },
     );
+    var instance = SqliteDbTasksApi._internal(db);
+    await instance._emitTasks();
+    return instance;
   }
 
-  late final Future<Database> _db;
-  final _tasksStreamController = BehaviorSubject<List<Task>>.seeded(const []);
+  @override
+  Stream<List<TaskModel>> getTasks() =>
+      _tasksStreamController.stream.asBroadcastStream();
 
   @override
   Future<void> deleteTask(String id) async {
@@ -60,21 +61,22 @@ class SqliteDbTasksApi extends TasksApi {
     if (index < 0) {
       throw TaskNotFoundException('Task not found');
     }
-    var db = await _db;
+    var db = database;
     int deleted = await db.transaction((txn) async {
       int stepsDeleted = await txn.delete(
         'steps',
         where: 'task_id = ?',
         whereArgs: [id],
       );
-      if (stepsDeleted < 0) {
-        return -1;
-      }
+
+      if (stepsDeleted < 0) return stepsDeleted;
+
       int tasksDeleted = await txn.delete(
         'tasks',
         where: 'id = ?',
         whereArgs: [id],
       );
+
       return tasksDeleted;
     });
     if (deleted > 0) {
@@ -86,14 +88,9 @@ class SqliteDbTasksApi extends TasksApi {
   }
 
   @override
-  Stream<List<Task>> getTasks() {
-    return _tasksStreamController.stream.asBroadcastStream();
-  }
-
-  @override
-  Future<void> saveTask(Task task) async {
+  Future<void> saveTask(TaskModel task) async {
     final tasks = [..._tasksStreamController.value];
-    var db = await _db;
+    var db = database;
     try {
       await db.transaction((txn) async {
         int taskInserted = await txn.insert(
@@ -140,5 +137,21 @@ class SqliteDbTasksApi extends TasksApi {
         st,
       );
     }
+  }
+
+  Future _emitTasks() async {
+    var taskMapList = await database.query('tasks');
+    var tasksFuture = taskMapList.map((rawTask) async {
+      Map<String, dynamic> taskMap = Map.from(rawTask);
+      taskMap['steps'] = await database.query(
+        'steps',
+        columns: ['id', 'description', 'is_completed'],
+        where: 'task_id = ?',
+        whereArgs: [taskMap['id']],
+      );
+      return TaskModel.fromJson(taskMap);
+    });
+    var tasks = await Future.wait(tasksFuture);
+    _tasksStreamController.sink.add(tasks);
   }
 }

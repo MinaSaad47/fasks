@@ -1,7 +1,5 @@
-import 'package:fasks/tasks/tasks.dart';
-import 'package:fasks/widgets/widgets.dart';
+import 'package:datetime_form_picker/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddBottomSheet extends StatelessWidget {
   const AddBottomSheet({Key? key}) : super(key: key);
@@ -10,16 +8,10 @@ class AddBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     var timeController = TimeController(TimeOfDay.now());
     var dateController = DateController(DateTime.now());
+    var titleController = TextEditingController();
+    var descriptionController = TextEditingController();
     var formKey = GlobalKey<FormState>();
-    return BlocListener<TasksCubit, TasksState>(
-      listener: (context, state) {
-        if (state is TasksAddBottomSheetSubmit) {
-          var formState = formKey.currentState;
-          if (formState != null && formState.validate()) {
-            context.read<TasksCubit>().closeAddBottomSheet();
-          }
-        }
-      },
+    return SingleChildScrollView(
       child: Form(
         key: formKey,
         child: Padding(
@@ -33,11 +25,13 @@ class AddBottomSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                controller: titleController,
                 keyboardType: TextInputType.text,
                 decoration: const InputDecoration(labelText: 'Task Title'),
               ),
               const SizedBox(height: 20),
               TextFormField(
+                controller: descriptionController,
                 keyboardType: TextInputType.multiline,
                 decoration:
                     const InputDecoration(labelText: 'Task Description'),
@@ -48,14 +42,14 @@ class AddBottomSheet extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: InputTimeFieldPicker(
-                      controller: timeController,
+                    child: DateFormPicker(
+                      controller: dateController,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: InputDateFieldPicker(
-                      controller: dateController,
+                    child: TimeFormPicker(
+                      controller: timeController,
                     ),
                   ),
                 ],
