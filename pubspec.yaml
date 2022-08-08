@@ -49,11 +49,13 @@ dependencies:
   flutter_spinkit: ^5.1.0
   url_launcher: ^6.1.5
   path_provider: ^2.0.11
+  flutter_slidable: ^2.0.0
 
   datetime_form_picker:
     git:
       url: "https://github.com/MinaSaad47/pub-packages"
       path: "packages/datetime_form_picker"
+  intl: ^0.17.0
 
 
 dev_dependencies:

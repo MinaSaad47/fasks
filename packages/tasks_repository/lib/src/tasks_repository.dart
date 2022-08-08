@@ -11,19 +11,20 @@ class TasksRepository {
   TasksRepository(this.tasksApi);
 
   void loadTasks() {
-    allTasks = tasksApi.getTasks();
-    dayTasks = allTasks.map(
+    final stream = tasksApi.getTasks().asBroadcastStream();
+    allTasks = stream;
+    dayTasks = stream.map(
       (list) => list.where((task) {
         return task.finishDate.difference(DateTime.now()).inHours < 24;
       }).toList(),
     );
-    weekTasks = allTasks.map(
+    weekTasks = stream.map(
       (list) => list.where((task) {
         return task.finishDate.difference(DateTime.now()).inHours >= 24 ||
             task.finishDate.difference(DateTime.now()).inDays < 7;
       }).toList(),
     );
-    monthTasks = allTasks.map(
+    monthTasks = stream.map(
       (list) => list.where((task) {
         return task.finishDate.difference(DateTime.now()).inDays >= 7 ||
             task.finishDate.difference(DateTime.now()).inDays < 30;

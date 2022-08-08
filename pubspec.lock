@@ -90,7 +90,7 @@ packages:
     description:
       path: "packages/datetime_form_picker"
       ref: HEAD
-      resolved-ref: ea53b32a2178170e1612ea3146eb2bc008204ed4
+      resolved-ref: be8102af0311baedefc04efb740a5d1e80e6e5c6
       url: "https://github.com/MinaSaad47/pub-packages"
     source: git
     version: "0.0.1"
@@ -176,6 +176,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -193,6 +200,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.0"
   js:
     dependency: transitive
     description:

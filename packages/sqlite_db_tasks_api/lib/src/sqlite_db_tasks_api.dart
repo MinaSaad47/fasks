@@ -51,8 +51,7 @@ class SqliteDbTasksApi extends TasksApi {
   }
 
   @override
-  Stream<List<TaskModel>> getTasks() =>
-      _tasksStreamController.stream.asBroadcastStream();
+  Stream<List<TaskModel>> getTasks() => _tasksStreamController.stream;
 
   @override
   Future<void> deleteTask(String id) async {

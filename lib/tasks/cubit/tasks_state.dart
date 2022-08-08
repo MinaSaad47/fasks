@@ -42,8 +42,5 @@ class TasksState extends Equatable {
   List<Object?> get props => [
         status,
         allTasks,
-        dayTasks,
-        weekTasks,
-        monthTasks,
       ];
 }

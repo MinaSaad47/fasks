@@ -9,6 +9,7 @@ class TasksView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PageController pageController = PageController();
+    var taskSaveNotifier = ValueNotifier<bool>(false);
     return Scaffold(
       appBar: PageAppBar(
         title: const ListTile(
@@ -17,10 +18,7 @@ class TasksView extends StatelessWidget {
         ),
       ),
       drawer: const NavigationDrawer(),
-      body: BlocConsumer<TasksCubit, TasksState>(
-        listener: (context, state) {
-          // TODO: implement listener
-        },
+      body: BlocBuilder<TasksCubit, TasksState>(
         builder: (context, state) {
           return PageView(
             controller: pageController,
@@ -34,7 +32,10 @@ class TasksView extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: const AddActionButton(),
+      floatingActionButton: ValueListenableBuilder(
+        builder: (context, value, child) => const AddEditActionButtonWidget(),
+        valueListenable: taskSaveNotifier,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBarWidget(
         onTap: (index) {
@@ -67,35 +68,39 @@ class TasksView extends StatelessWidget {
   }
 }
 
-class AddActionButton extends StatefulWidget {
-  const AddActionButton({Key? key}) : super(key: key);
+class AddEditActionButtonWidget extends StatefulWidget {
+  const AddEditActionButtonWidget({Key? key}) : super(key: key);
 
   @override
-  State<AddActionButton> createState() => _AddActionButtonState();
+  State<AddEditActionButtonWidget> createState() =>
+      AddEditActionButtonWidgetState();
 }
 
-class _AddActionButtonState extends State<AddActionButton> {
-  bool isPressed = false;
-
+class AddEditActionButtonWidgetState extends State<AddEditActionButtonWidget> {
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        if (!isPressed) {
-          setState(() {
-            isPressed = true;
-          });
-          Scaffold.of(context)
-              .showBottomSheet((context) => const AddBottomSheet())
-              .closed
-              .then((value) {
-            setState(() {
-              isPressed = false;
-            });
-          });
-        }
+    return BlocBuilder<TaskViewCubit, TaskViewState>(
+      builder: (context, state) {
+        return FloatingActionButton(
+          onPressed: () {
+            if (state is TaskViewAddEditTaskInProgress ||
+                state is TaskViewAddEditTaskSubmitting) {
+              context.read<TaskViewCubit>().submitTask();
+            } else if (state is TaskViewAddEditStepInProgress ||
+                state is TaskViewAddEditStepSubmitting) {
+              context.read<TaskViewCubit>().submitStep();
+            } else {
+              context.read<TaskViewCubit>().addOrEditTask(context);
+            }
+          },
+          child: Icon(
+            state is TaskViewAddEditTaskInProgress ||
+                    state is TaskViewAddEditTaskSubmitting
+                ? Icons.done
+                : Icons.add,
+          ),
+        );
       },
-      child: Icon(isPressed ? Icons.done : Icons.add_outlined),
     );
   }
 }

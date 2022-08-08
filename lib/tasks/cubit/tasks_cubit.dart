@@ -13,44 +13,56 @@ class TasksCubit extends Cubit<TasksState> {
 
   bool isBotSheetActive = false;
 
-  Future getTasks() async {
+  void getTasks() {
     emit(state.copyWith(status: TasksStatus.loading));
     _tasksRepository.loadTasks();
-    try {
-      await for (var tasks in _tasksRepository.allTasks) {
-        emit(state.copyWith(status: TasksStatus.success, allTasks: tasks));
-      }
-    } catch (e, st) {
+
+    _tasksRepository.allTasks.forEach((tasks) {
+      emit(state.copyWith(status: TasksStatus.success, allTasks: tasks));
+    }).catchError((e, st) {
       log(e.toString(), error: e, stackTrace: st);
       emit(state.copyWith(status: TasksStatus.failure));
-    }
-    try {
-      await for (var tasks in _tasksRepository.dayTasks) {
-        emit(state.copyWith(status: TasksStatus.success, dayTasks: tasks));
-      }
-    } catch (e, st) {
+    });
+
+    _tasksRepository.dayTasks.forEach((tasks) {
+      emit(state.copyWith(status: TasksStatus.success, dayTasks: tasks));
+    }).catchError((e, st) {
       log(e.toString(), error: e, stackTrace: st);
       emit(state.copyWith(status: TasksStatus.failure));
-    }
-    try {
-      await for (var tasks in _tasksRepository.weekTasks) {
-        emit(state.copyWith(status: TasksStatus.success, weekTasks: tasks));
-      }
-    } catch (e, st) {
+    });
+
+    _tasksRepository.weekTasks.forEach((tasks) {
+      emit(state.copyWith(status: TasksStatus.success, weekTasks: tasks));
+    }).catchError((e, st) {
       log(e.toString(), error: e, stackTrace: st);
       emit(state.copyWith(status: TasksStatus.failure));
-    }
+    });
+
+    _tasksRepository.monthTasks.forEach((tasks) {
+      emit(state.copyWith(status: TasksStatus.success, monthTasks: tasks));
+    }).catchError((e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    });
+  }
+
+  Future saveTask(TaskModel task) async {
+    emit(state.copyWith(status: TasksStatus.loading));
     try {
-      await for (var tasks in _tasksRepository.monthTasks) {
-        emit(state.copyWith(status: TasksStatus.success, monthTasks: tasks));
-      }
+      await _tasksRepository.saveTask(task);
     } catch (e, st) {
       log(e.toString(), error: e, stackTrace: st);
       emit(state.copyWith(status: TasksStatus.failure));
     }
   }
 
-  Future addTask(task) async {
-    await _tasksRepository.saveTask(task);
+  Future deleteTask(TaskModel task) async {
+    emit(state.copyWith(status: TasksStatus.loading));
+    try {
+      await _tasksRepository.deleteTask(task.id);
+    } catch (e, st) {
+      log(e.toString(), error: e, stackTrace: st);
+      emit(state.copyWith(status: TasksStatus.failure));
+    }
   }
 }
